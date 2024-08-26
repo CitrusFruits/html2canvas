@@ -136,10 +136,12 @@ export class DocumentCloner {
             document.doctype!.publicId,
             document.doctype!.systemId
         );
-        documentClone.insertBefore(doctype, documentClone.documentElement);
-        // Chrome scrolls the parent document for some reason after the write to the cloned window???
-        restoreOwnerScroll(this.referenceElement.ownerDocument, scrollX, scrollY);
-        documentClone.replaceChild(documentClone.adoptNode(this.documentElement), documentClone.documentElement);
+        if (documentClone.documentElement !== null) {
+            documentClone.insertBefore(doctype, documentClone.documentElement);
+            // Chrome scrolls the parent document for some reason after the write to the cloned window???
+            restoreOwnerScroll(this.referenceElement.ownerDocument, scrollX, scrollY);
+            documentClone.replaceChild(documentClone.adoptNode(this.documentElement), documentClone.documentElement);
+        }
         documentClone.close();
 
         return iframeLoad;
