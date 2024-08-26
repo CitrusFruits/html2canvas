@@ -93,7 +93,11 @@ const renderElement = async (element: HTMLElement, opts: Partial<Options>): Prom
         return Promise.reject(`Unable to find element in cloned iframe`);
     }
 
-    const container = await documentCloner.toIFrame(ownerDocument, windowBounds);
+    const container = await documentCloner.toIFrame(
+        ownerDocument,
+        windowBounds, 
+        !!opts.skipWaitingForFonts
+    );
 
     const {width, height, left, top} =
         isBodyElement(clonedElement) || isHTMLElement(clonedElement)

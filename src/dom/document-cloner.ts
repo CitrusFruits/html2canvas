@@ -69,7 +69,7 @@ export class DocumentCloner {
         this.documentElement = this.cloneNode(element.ownerDocument.documentElement, false) as HTMLElement;
     }
 
-    toIFrame(ownerDocument: Document, windowSize: Bounds): Promise<HTMLIFrameElement> {
+    toIFrame(ownerDocument: Document, windowSize: Bounds, skipWaitingForFonts: boolean): Promise<HTMLIFrameElement> {
         const iframe: HTMLIFrameElement = createIFrameContainer(ownerDocument, windowSize);
 
         if (!iframe.contentWindow) {
@@ -112,7 +112,7 @@ export class DocumentCloner {
                 return Promise.reject(`Error finding the ${this.referenceElement.nodeName} in the cloned document`);
             }
 
-            if (documentClone.fonts && documentClone.fonts.ready) {
+            if (!skipWaitingForFonts && documentClone.fonts && documentClone.fonts.ready) {
                 await documentClone.fonts.ready;
             }
 

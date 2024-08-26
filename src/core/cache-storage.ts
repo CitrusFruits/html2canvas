@@ -31,6 +31,7 @@ export interface ResourceOptions {
     useCORS: boolean;
     allowTaint: boolean;
     proxy?: string;
+    skipWaitingForFonts?: boolean;
 }
 
 export class Cache {
