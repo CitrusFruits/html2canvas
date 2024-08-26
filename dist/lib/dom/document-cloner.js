@@ -481,26 +481,6 @@ var copyCSSStyles = function (style, target) {
     return target;
 };
 exports.copyCSSStyles = copyCSSStyles;
-var serializeDoctype = function (doctype) {
-    var str = '';
-    if (doctype) {
-        str += '<!DOCTYPE ';
-        if (doctype.name) {
-            str += doctype.name;
-        }
-        if (doctype.internalSubset) {
-            str += doctype.internalSubset;
-        }
-        if (doctype.publicId) {
-            str += "\"" + doctype.publicId + "\"";
-        }
-        if (doctype.systemId) {
-            str += "\"" + doctype.systemId + "\"";
-        }
-        str += '>';
-    }
-    return str;
-};
 var restoreOwnerScroll = function (ownerDocument, x, y) {
     if (ownerDocument &&
         ownerDocument.defaultView &&
