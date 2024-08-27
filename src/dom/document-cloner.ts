@@ -69,7 +69,7 @@ export class DocumentCloner {
         this.documentElement = this.cloneNode(element.ownerDocument.documentElement, false) as HTMLElement;
     }
 
-    toIFrame(ownerDocument: Document, windowSize: Bounds): Promise<HTMLIFrameElement> {
+    toIFrame(ownerDocument: Document, windowSize: Bounds, skipWaitingForFonts: boolean): Promise<HTMLIFrameElement> {
         const iframe: HTMLIFrameElement = createIFrameContainer(ownerDocument, windowSize);
 
         if (!iframe.contentWindow) {
@@ -112,7 +112,7 @@ export class DocumentCloner {
                 return Promise.reject(`Error finding the ${this.referenceElement.nodeName} in the cloned document`);
             }
 
-            if (documentClone.fonts && documentClone.fonts.ready) {
+            if (!skipWaitingForFonts && documentClone.fonts && documentClone.fonts.ready) {
                 await documentClone.fonts.ready;
             }
 
@@ -129,8 +129,15 @@ export class DocumentCloner {
             return iframe;
         });
 
+        // Add the doctype
         documentClone.open();
-        documentClone.write(`${serializeDoctype(document.doctype)}<html></html>`);
+        const doctype = document.doctype;
+        if (doctype) {
+            const doctypeNode = documentClone.implementation.createDocumentType(doctype.name, doctype.publicId, doctype.systemId);
+            documentClone.append(doctypeNode);
+        }
+        const htmlNode = documentClone.createElement('html');
+        documentClone.append(htmlNode);
         // Chrome scrolls the parent document for some reason after the write to the cloned window???
         restoreOwnerScroll(this.referenceElement.ownerDocument, scrollX, scrollY);
         documentClone.replaceChild(documentClone.adoptNode(this.documentElement), documentClone.documentElement);
@@ -566,32 +573,6 @@ export const copyCSSStyles = <T extends HTMLElement | SVGElement>(style: CSSStyl
         }
     }
     return target;
-};
-
-const serializeDoctype = (doctype?: DocumentType | null): string => {
-    let str = '';
-    if (doctype) {
-        str += '<!DOCTYPE ';
-        if (doctype.name) {
-            str += doctype.name;
-        }
-
-        if (doctype.internalSubset) {
-            str += doctype.internalSubset;
-        }
-
-        if (doctype.publicId) {
-            str += `"${doctype.publicId}"`;
-        }
-
-        if (doctype.systemId) {
-            str += `"${doctype.systemId}"`;
-        }
-
-        str += '>';
-    }
-
-    return str;
 };
 
 const restoreOwnerScroll = (ownerDocument: Document | null, x: number, y: number) => {
